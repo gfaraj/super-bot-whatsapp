@@ -1379,7 +1379,7 @@ window.WAPI.sendImage = function (imgBase64, chatid, filename, caption, done) {
     // create new chat
     return Store.Chat.find(idUser).then((chat) => {
         var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
-        var mc = new Store.MediaCollection();
+        var mc = new Store.MediaCollection(chat);
         mc.processFiles([mediaBlob], chat, 1).then(() => {
             var media = mc.models[0];
             media.sendToChat(chat, { caption: caption });
@@ -1392,7 +1392,7 @@ window.WAPI.sendImage2 = function ({imgBase64, chatid, filename, caption, quoted
     var idUser = new window.Store.UserConstructor(chatid, { intentionallyUsePrivateConstructor: true });
     return Store.Chat.find(idUser).then((chat) => {
         var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
-        var mc = new Store.MediaCollection();
+        var mc = new Store.MediaCollection(chat);
         mc.processFiles([mediaBlob], chat, 1).then(() => {
             var media = mc.models[0];
             var extraData = {};
