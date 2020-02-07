@@ -61,6 +61,8 @@ function inspectMessage(msg) {
     });
 }
 
+const superbotUrl = process.env.SUPERBOT_URL || 'http://localhost:3000/message';
+
 export default class WhatsappClient {
     
     constructor(options) {
@@ -89,7 +91,7 @@ export default class WhatsappClient {
 
     async start() {
         this.browser = await puppeteer.launch({
-            headless: false,
+            headless: (process.env.PUPPETEER_MODE || 'normal') === 'headless',
             userDataDir: "./user_data",
             args: DEFAULT_CHROMIUM_ARGS,
             ignoreHTTPSErrors: true,
@@ -151,9 +153,10 @@ export default class WhatsappClient {
     }
 
     async startCallbackServer() {
-        const route = '/message';
-        const port = this.options.callback_url_port || 3001;
-        this.callbackUrl = `${this.options.callback_url_base}:${port}${route}`;
+        const route = '/api/message';
+        const port = process.env.CALLBACK_PORT || 3001;
+        const host = process.env.CALLBACK_HOST || 'localhost';
+        this.callbackUrl = `http://${host}:${port}${route}`;
 
         const server = express();
         server.use(express.json({ limit: '20mb' }));
@@ -227,7 +230,7 @@ export default class WhatsappClient {
         }
     }
 
-    getFileInBase64 = function (filename) {
+    getFileInBase64(filename) {
         return new Promise((resolve, reject) => {
             try {
                 filename = path.join(process.cwd(), filename);
@@ -397,7 +400,7 @@ export default class WhatsappClient {
                 botMessage.callbackUrl = this.callbackUrl;
 
                 console.log(`Sending to bot: ${inspectMessage(botMessage)}`);
-                let response = await axios.post(this.options.message_api_url, botMessage);
+                let response = await axios.post(superbotUrl, botMessage);
                 
                 if (response.status == 200) {
                     console.log(`Received back: ${inspectMessage(response.data)}`);

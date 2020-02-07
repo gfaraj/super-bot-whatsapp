@@ -1,0 +1,12 @@
+version: '2.1'
+
+services:
+  super-bot-whatsapp:
+    image: super-bot-whatsapp
+    build: .
+    environment:
+      NODE_ENV: development
+    ports:
+      - 3001:3001
+      - 9229:9229
+    command: node --inspect=0.0.0.0:9229 .

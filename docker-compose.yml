@@ -1,0 +1,16 @@
+version: '3.7'
+
+services:
+  super-bot-whatsapp:
+    image: gfaraj/super-bot-whatsapp:latest
+    build: .
+    hostname: superbotwhatsapp
+    env_file: 
+      - .env
+    environment:
+      NODE_ENV: production
+      SUPERBOT_URL: http://host.docker.internal:3000/message
+      CALLBACK_HOST: localhost
+      PUPPETEER_MODE: headless
+    ports:
+      - 3001:3001
