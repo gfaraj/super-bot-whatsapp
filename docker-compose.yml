@@ -5,6 +5,7 @@ services:
     image: gfaraj/super-bot-whatsapp:latest
     build: .
     hostname: superbotwhatsapp
+    restart: always
     env_file: 
       - .env
     environment:
