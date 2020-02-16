@@ -15,6 +15,10 @@ window.WAPI = {
 let moduleId = 1;
 window.WAPI.autoDiscoverModules = function() {
     (function () {
+        if (typeof webpackJsonp == "undefined") {
+            return;
+        }
+        
         function getStore(modules) {
             let foundCount = 0;
             let neededObjects = [
@@ -39,7 +43,7 @@ window.WAPI.autoDiscoverModules = function() {
                 { id: "DataFactory", conditions: (mod) => (mod.default && mod.default.createFromData) ? mod.default : null },
                 { id: "Sticker", conditions: (mod) => (mod.default && mod.default.Sticker) ? mod.default.Sticker : null },
                 { id: "MediaUpload", conditions: (mod) => (mod.default && mod.default.mediaUpload) ? mod.default : null },
-                { id: "UploadUtils", conditions: (module) => (module.default && module.default.encryptAndUpload) ? module.default : null }
+                { id: "UploadUtils", conditions: (mod) => (mod.default && mod.default.encryptAndUpload) ? mod.default : null }
             ];
             for (let idx in modules) {
                 if ((typeof modules[idx] === "object") && (modules[idx] !== null)) {

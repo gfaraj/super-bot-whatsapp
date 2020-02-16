@@ -90,6 +90,8 @@ export default class WhatsappClient {
     }
 
     async start() {
+        console.log(`Launching puppeteer instance in ${(process.env.PUPPETEER_MODE || 'normal')} mode...`);
+
         this.browser = await puppeteer.launch({
             headless: (process.env.PUPPETEER_MODE || 'normal') === 'headless',
             userDataDir: "./user_data",
@@ -99,6 +101,8 @@ export default class WhatsappClient {
             defaultViewport: null
         });
         
+        console.log('Browsing to Whatsapp Web...');
+
         this.page = await this.getWhatsappPage();
 
         console.log('Loading WAPI...');
