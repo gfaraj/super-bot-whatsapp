@@ -23,7 +23,7 @@ window.WAPI.autoDiscoverModules = function() {
             let foundCount = 0;
             let neededObjects = [
                 { id: "Store", conditions: (mod) => (mod.Chat && mod.Msg) ? mod : null },
-                { id: "MediaCollection", conditions: (mod) => (mod.default && mod.default.prototype && mod.default.prototype.processFiles !== undefined) ? mod.default : null },
+                { id: "MediaCollection", conditions: (module) => (module.default && module.default.prototype && module.default.prototype.processAttachments) ? module.default : null },
                 { id: "ChatClass", conditions: (mod) => (mod.default && mod.default.prototype && mod.default.prototype.Collection !== undefined && mod.default.prototype.Collection === "Chat") ? mod : null },
                 { id: "MediaProcess", conditions: (mod) => (mod.BLOB) ? mod : null },
                 { id: "Wap", conditions: (mod) => (mod.createGroup) ? mod : null },
@@ -1384,9 +1384,9 @@ window.WAPI.sendImage = function (imgBase64, chatid, filename, caption, done) {
     return Store.Chat.find(idUser).then((chat) => {
         var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
         var mc = new Store.MediaCollection(chat);
-        mc.processFiles([mediaBlob], chat, 1).then(() => {
-            var media = mc.models[0];
-            media.sendToChat(chat, { caption: caption });
+        mc.processAttachments([{file: mediaBlob}, 1], chat, 1).then(() => {
+            let media = mc.models[0];
+            media.sendToChat(chat, {caption:caption});
             if (done !== undefined) done(true);
         });
     });
@@ -1397,7 +1397,7 @@ window.WAPI.sendImage2 = function ({imgBase64, chatid, filename, caption, quoted
     return Store.Chat.find(idUser).then((chat) => {
         var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
         var mc = new Store.MediaCollection(chat);
-        mc.processFiles([mediaBlob], chat, 1).then(() => {
+        mc.processAttachments([{file: mediaBlob}, 1], chat, 1).then(() => {
             var media = mc.models[0];
             var extraData = {};
             if (caption) {
