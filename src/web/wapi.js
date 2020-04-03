@@ -15,7 +15,7 @@ window.WAPI = {
 let moduleId = 1;
 window.WAPI.autoDiscoverModules = function() {
     (function () {
-        if (typeof webpackJsonp == "undefined") {
+        if (typeof webpackJsonp === "undefined") {
             return;
         }
         
@@ -90,11 +90,20 @@ window.WAPI.autoDiscoverModules = function() {
             }
         }
 
-        let mod = {};
-        let exportName = `parasite${moduleId++}`;
-        mod[exportName] = (x, y, z) => getStore(z);
+        const exportName = `parasite${moduleId++}`;
+        const mod = {
+            [exportName]: (x, y, z) => getStore(z)
+        };
 
-        webpackJsonp([], mod, [exportName]);
+        if (typeof webpackJsonp === 'function') {
+            webpackJsonp([], mod, [exportName]);
+        } else {
+            webpackJsonp.push([
+                [exportName],
+                mod,
+                [[exportName]]
+            ]);
+        }
     })();
 };
 
