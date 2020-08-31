@@ -121,22 +121,25 @@ function handleImageMessage(message) {
             if (!m) {
                 console.log("Could not find message, aborting...");
                 clearInterval(imageWaitInterval);
-            }
-            else if (m.mediaData.mediaStage === 'RESOLVED') {
+                return;
+            } else if (m.mediaData.mediaStage === 'RESOLVED') {
                 console.log("Image resolved...");
-                clearInterval(imageWaitInterval);
                 if (m.mediaData.mediaBlob) {
-                    let data = await window.WAPI.fileToBase64(m.mediaData.mediaBlob._blob);
+                    clearInterval(imageWaitInterval);
+                    const data = await window.WAPI.fileToBase64(m.mediaData.mediaBlob._blob);
                     m.body = data;
                     processMessage(m);
+                    return;
                 }
-                else {
-                    let data = await window.WAPI.downloadFileAndDecrypt({ url: m.clientUrl, type: m.type, mediaKey: m.mediaKey, mimetype: m.mimetype });
-                    WAPI.getMessageById(message.id, (m2) => {
-                        m2.body = data.result;
-                        processMessage(m2);
-                    });
-                }
+            }
+            
+            if (m.clientUrl && m.mediaKey && m.mimetype) {
+                clearInterval(imageWaitInterval);
+                const data = await window.WAPI.downloadFileAndDecrypt({ url: m.clientUrl, type: m.type, mediaKey: m.mediaKey, mimetype: m.mimetype });
+                WAPI.getMessageById(message.id, (m2) => {
+                    m2.body = data.result;
+                    processMessage(m2);
+                });
             }
         });
     }, 3000);
@@ -156,7 +159,7 @@ WAPI.waitNewMessages(false, (data) => {
                 processMessage(message);
             }
         }
-        else if (message.type === 'image' && message.caption && message.caption.length > 0) {
+        else if ((message.type === 'image' || message.type === 'video') && message.caption && message.caption.length > 0) {
             handleImageMessage(message);
         }
     });

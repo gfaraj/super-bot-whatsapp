@@ -14,7 +14,7 @@ docker run gfaraj/super-bot-whatsapp
 You will need to specify a couple of environment variables so that the Whatsapp client knows where the [super-bot service](https://github.com/gfaraj/super-bot) is located:
 
 ```
-docker run --env SUPERBOT_URL=http://MY_MACHINE:3000/message --env PUPPETEER_MODE=headless gfaraj/super-bot-discord
+docker run --env SUPERBOT_URL=http://MY_MACHINE:3000/message --env PUPPETEER_MODE=headless gfaraj/super-bot-whatsapp
 ```
 
 The SUPERBOT_URL variable defaults to "http://localhost:3000/message" if not set. The PUPPETEER_MODE variable defaults to "normal" if not set, which will open a browser window with Whatsapp Web. You can also use the --env-file parameter if needed. The github repository also contains a couple of docker-compose files to aid in setting up a container for this app:

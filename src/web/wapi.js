@@ -22,7 +22,7 @@ window.WAPI.autoDiscoverModules = function() {
         function getStore(modules) {
             let foundCount = 0;
             let neededObjects = [
-                { id: "Store", conditions: (mod) => (mod.Chat && mod.Msg) ? mod : null },
+                { id: "Store", conditions: (module) => (module.default && module.default.Chat && module.default.Msg) ? module.default : null },
                 { id: "MediaCollection", conditions: (module) => (module.default && module.default.prototype && module.default.prototype.processAttachments) ? module.default : null },
                 { id: "ChatClass", conditions: (mod) => (mod.default && mod.default.prototype && mod.default.prototype.Collection !== undefined && mod.default.prototype.Collection === "Chat") ? mod : null },
                 { id: "MediaProcess", conditions: (mod) => (mod.BLOB) ? mod : null },

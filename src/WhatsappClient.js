@@ -98,7 +98,9 @@ export default class WhatsappClient {
             args: DEFAULT_CHROMIUM_ARGS,
             ignoreHTTPSErrors: true,
             devtools: false,
-            defaultViewport: null
+            defaultViewport: null,
+            executablePath: (process.env.USE_PUPPETEER_EXE_PATH == 1 && process.env.PUPPETEER_EXE_PATH)
+                                ? process.env.PUPPETEER_EXE_PATH : undefined
         });
         
         console.log('Browsing to Whatsapp Web...');
@@ -228,8 +230,9 @@ export default class WhatsappClient {
     getImageFileExtension(image) {
         if (image.type == "sticker" || image.mimeType == 'image/webp') {
             return 'webp';
-        }
-        else {
+        } else if (image.type == "video" || image.mimeType == 'video/mp4') {
+            return 'mp4';
+        } else {
             return 'jpg';
         }
     }
@@ -340,7 +343,7 @@ export default class WhatsappClient {
             return;
         }
 
-        if (message.type == "image") {
+        if (message.type == "image" || message.type == "video") {
             attachment = { data : message.body, mimeType : message.mimeType, type : message.type };
         }
         else if (message.quotedMsg) {
