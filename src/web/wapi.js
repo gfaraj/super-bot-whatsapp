@@ -1437,7 +1437,7 @@ window.WAPI.sendSticker = function ({sticker, chatid, quotedMsgId}, done) {
         stick.width = 512;
 
         await stick.initialize();
-        await stick.sendToChat(chat);
+        await stick.sendToChat(chat, { stickerSendOrigin: 3 });
         if (done !== undefined) done(true);
     })
     .catch(e => {
