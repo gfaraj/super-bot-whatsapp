@@ -1023,6 +1023,7 @@ window.WAPI.downloadFileWithCredentials = function (url, done) {
                 };
             } else {
                 console.error(xhr.statusText);
+                done(false);
             }
         } else {
             console.log(err);
@@ -1050,6 +1051,7 @@ window.WAPI.downloadFile = function (url, done) {
                 };
             } else {
                 console.error(xhr.statusText);
+                reject(false);
             }
         } else {
             console.log(err);
@@ -1072,6 +1074,7 @@ window.WAPI.downloadFileBlob = function (url) {
                     resolve(xhr.response);
                 } else {
                     console.error(xhr.statusText);
+                    reject(false);
                 }
             } else {
                 console.log(err);
@@ -1095,6 +1098,7 @@ window.WAPI.downloadFileBuffer = function (url) {
                     resolve(xhr.response);
                 } else {
                     console.error(xhr.statusText);
+                    reject(false);
                 }
             } else {
                 console.log(err);
@@ -1137,8 +1141,8 @@ window.WAPI.downloadFileBytes = function (url) {
 };
 
 window.WAPI.downloadFileAndDecrypt = async function ({ url, type, mediaKey, mimetype }) {
-    var result = await window.WAPI.downloadFileBuffer(url);
-    let a = await Store.CryptoLib.decryptE2EMedia(type || "image", result, mediaKey, mimetype);
+    const result = await window.WAPI.downloadFileBuffer(url);
+    const decrypted = await Store.CryptoLib.decryptE2EMedia(type || "image", result, mediaKey, mimetype);
     return new Promise(resolve => {
         const reader = new FileReader();
 
@@ -1146,7 +1150,7 @@ window.WAPI.downloadFileAndDecrypt = async function ({ url, type, mediaKey, mime
             resolve(e.target);
         });
 
-        reader.readAsDataURL(a._blob);
+        reader.readAsDataURL(decrypted._blob);
     });
 }
 

@@ -1,6 +1,6 @@
 {
     "WhatsappClient" : {
         "triggers" : ["!"],
-        "aliases" : ["superbot", "sb", "smb"]
+        "aliases" : ["superbot", "sb", "smb", "Superbot"]
     }
 }

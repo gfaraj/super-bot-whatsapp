@@ -354,7 +354,7 @@ export default class WhatsappClient {
                 rest = join(rest, message.quotedMsg.caption, ' ');
             }
 
-            if (message.quotedMsg.type == "image" || message.quotedMsg.type == "sticker") {
+            if (message.quotedMsg.type == "image" || message.quotedMsg.type == "sticker" || message.quotedMsg.type == "video") {
                 attachment = { data : message.quotedMsg.body, mimeType : message.quotedMsg.mimeType, type : message.quotedMsg.type };
                 if (message.quotedMsg.type == "sticker") {
                     attachment.url = message.quotedMsg.url;
