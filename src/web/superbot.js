@@ -11,6 +11,8 @@ window.getFileHash = async (data) => {
     return sha.getHash("B64");
 };
 
+const getImageUrl = (o) => o.clientUrl || o.deprecatedMms3Url;
+
 function processMessage(message) {
     window.onMessageReceived({
         sender : {
@@ -26,7 +28,7 @@ function processMessage(message) {
             isGroup : message.chat.isGroup
         },
         type : message.type,
-        mimeType : message.mimeType,
+        mimeType : message.mimetype,
         body : message.body,
         text : message.type === 'chat' ? message.body : message.caption,
         isGroupMsg : message.isGroupMsg,
@@ -36,7 +38,7 @@ function processMessage(message) {
             type : message.quotedMsgObj && message.quotedMsgObj.type,
             mimeType : message.quotedMsgObj && message.quotedMsgObj.mimetype,
             mediaKey : message.quotedMsgObj && message.quotedMsgObj.mediaKey,
-            url : message.quotedMsgObj && message.quotedMsgObj.clientUrl,
+            url : message.quotedMsgObj && getImageUrl(message.quotedMsgObj),
             filehash : message.quotedMsgObj && message.quotedMsgObj.filehash,
             uploadhash : message.quotedMsgObj && message.quotedMsgObj.uploadhash,
             senderId : message.quotedMsgObj && message.quotedMsgObj.sender.id._serialized
@@ -85,12 +87,12 @@ function handleQuotedImage(message) {
                     const originalMessage = WAPI.getMessageById(message.id);
                     originalMessage.quotedMsgObj.body = data;
                     processMessage(originalMessage);
-                } else if (quotedMessage.clientUrl && quotedMessage.mediaKey && quotedMessage.mimetype) {
+                } else if (getImageUrl(quotedMessage) && quotedMessage.mediaKey && quotedMessage.mimetype) {
                     console.log("We don't have the data, downloading from client URL...");
                     clearInterval(imageWaitInterval);
 
                     const data = await window.WAPI.downloadFileAndDecrypt({
-                        url: quotedMessage.clientUrl, type: quotedMessage.type, mediaKey: quotedMessage.mediaKey, mimetype: quotedMessage.mimetype 
+                        url: getImageUrl(quotedMessage), type: quotedMessage.type, mediaKey: quotedMessage.mediaKey, mimetype: quotedMessage.mimetype 
                     });
                     console.log("Download successful, processing message...");
 
@@ -119,12 +121,12 @@ function handleQuotedImage(message) {
                     if (rawQuotedMessage.mediaData.mediaStage == 'NEED_POKE') {
                         maxWaitCount += 5;
                         rawQuotedMessage.downloadMedia(true, 1);
-                    } else if (rawQuotedMessage.clientUrl && rawQuotedMessage.mediaKey && rawQuotedMessage.mimetype) {
+                    } else if (getImageUrl(rawQuotedMessage) && rawQuotedMessage.mediaKey && rawQuotedMessage.mimetype) {
                         console.log("Downloading quoted media...");
                         clearInterval(imageWaitInterval);
 
                         const data = await window.WAPI.downloadFileAndDecrypt({
-                            url: rawQuotedMessage.clientUrl, type: rawQuotedMessage.type, mediaKey: rawQuotedMessage.mediaKey, mimetype: rawQuotedMessage.mimetype 
+                            url: getImageUrl(rawQuotedMessage), type: rawQuotedMessage.type, mediaKey: rawQuotedMessage.mediaKey, mimetype: rawQuotedMessage.mimetype 
                         });
 
                         console.log("Download successful, processing message...");
@@ -190,11 +192,11 @@ function handleImageMessage(message) {
                 }
             }
             
-            if (updatedMessage.clientUrl && updatedMessage.mediaKey && updatedMessage.mimetype) {
+            if (getImageUrl(updatedMessage) && updatedMessage.mediaKey && updatedMessage.mimetype) {
                 clearInterval(imageWaitInterval);
                 
                 const data = await window.WAPI.downloadFileAndDecrypt({
-                    url: updatedMessage.clientUrl, type: updatedMessage.type, mediaKey: updatedMessage.mediaKey, mimetype: updatedMessage.mimetype 
+                    url: getImageUrl(updatedMessage), type: updatedMessage.type, mediaKey: updatedMessage.mediaKey, mimetype: updatedMessage.mimetype 
                 });
                 const originalMessage = WAPI.getMessageById(message.id);
                 originalMessage.body = data.result;
@@ -213,7 +215,10 @@ WAPI.waitNewMessages(false, (data) => {
         console.log(message);
 
         if (message.type === 'chat') {
-            if (message.quotedMsgObj && (message.quotedMsgObj.type === "sticker" || message.quotedMsgObj.type === "image" || message.quotedMsgObj.type === "video")) {
+            if (message.quotedMsgObj && (message.quotedMsgObj.type === "sticker" || 
+                                            message.quotedMsgObj.type === "image" || 
+                                            message.quotedMsgObj.type === "video" ||
+                                            message.quotedMsgObj.type === "ptt")) {
                 handleQuotedImage(message);
             }
             else {

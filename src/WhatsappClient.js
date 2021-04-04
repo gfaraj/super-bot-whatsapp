@@ -36,6 +36,8 @@ const DEFAULT_CHROMIUM_ARGS = [
 const timeout = ms => new Promise(res => setTimeout(res, ms));
 
 function parse(str) {
+    if (!str) return ['', ''];
+
     let pos = str.indexOf(' ');
     return (pos === -1) ? [str, ''] : [str.substr(0, pos), str.substr(pos + 1)];
 };
@@ -232,6 +234,8 @@ export default class WhatsappClient {
             return 'webp';
         } else if (image.type == "video" || image.mimeType == 'video/mp4') {
             return 'mp4';
+        } else if (image.type == "ptt") {
+            return 'ogg';
         } else {
             return 'jpg';
         }
@@ -266,19 +270,12 @@ export default class WhatsappClient {
     async sendImage(to, image, caption) {
         if (image.type == "sticker" || image.mimeType == 'image/webp') {
             await this.page.evaluate(async (to, image, caption) => {
-                if (!image.url) {
-                    let encrypted = await WAPI.encryptAndUploadFile({
-                        type: "sticker", 
-                        data: window.WAPI.base64ImageToFile(image.data, "file.webp")
-                    });
-                    image.url = encrypted.clientUrl;
-                    image.mediaKey = encrypted.mediaKey;
-                    image.mediaKeyTimestamp = encrypted.mediaKeyTimestamp;
-                    image.filehash = encrypted.filehash;
-                    image.uploadhash = encrypted.uploadhash;
-                    image.directPath = encrypted.directPath;
-                }
-                WAPI.sendSticker({ sticker: image, chatid: to }, async (result) => {
+                let encrypted = await WAPI.encryptAndUploadFile({
+                    type: "sticker", 
+                    data: window.WAPI.base64ImageToFile(image.data, "file.webp")
+                });
+
+                WAPI.sendSticker({ sticker: encrypted, chatid: to }, async (result) => {
                     console.log(`Send sticker to ${to} result = ${result}`);
                     if (result) {
                         if (caption && caption.length > 0) {
@@ -354,7 +351,7 @@ export default class WhatsappClient {
                 rest = join(rest, message.quotedMsg.caption, ' ');
             }
 
-            if (message.quotedMsg.type == "image" || message.quotedMsg.type == "sticker" || message.quotedMsg.type == "video") {
+            if (message.quotedMsg.type == "image" || message.quotedMsg.type == "sticker" || message.quotedMsg.type == "video" || message.quotedMsg.type == "ptt") {
                 attachment = { data : message.quotedMsg.body, mimeType : message.quotedMsg.mimeType, type : message.quotedMsg.type };
                 if (message.quotedMsg.type == "sticker") {
                     attachment.url = message.quotedMsg.url;
