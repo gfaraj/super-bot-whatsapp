@@ -96,7 +96,7 @@ export default class WhatsappClient {
 
         this.browser = await puppeteer.launch({
             headless: (process.env.PUPPETEER_MODE || 'normal') === 'headless',
-            userDataDir: "./user_data",
+            userDataDir: path.resolve("./user_data"),
             args: DEFAULT_CHROMIUM_ARGS,
             ignoreHTTPSErrors: true,
             devtools: false,

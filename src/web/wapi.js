@@ -14,7 +14,9 @@ window.WAPI = {
 let moduleId = 1;
 window.WAPI.autoDiscoverModules = function() {
     (function () {
-        if (typeof webpackJsonp === "undefined" && typeof webpackChunkbuild === "undefined") {
+        if (typeof webpackJsonp === "undefined" 
+            && typeof webpackChunkbuild === "undefined" 
+            && typeof webpackChunkwhatsapp_web_client === "undefined") {
             return;
         }
 
@@ -89,7 +91,8 @@ window.WAPI.autoDiscoverModules = function() {
         if (typeof webpackJsonp === 'function') {
             webpackJsonp([], mod, [exportName]);
         } else {
-            webpackChunkbuild.push([
+            const chunkBuild = window.webpackChunkbuild || window.webpackChunkwhatsapp_web_client;
+            chunkBuild.push([
 				[exportName],
 				{
 				},
